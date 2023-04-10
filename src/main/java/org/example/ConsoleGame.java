@@ -2,6 +2,8 @@ package org.example;
 
 import java.util.Scanner;
 
+import static org.example.Board.EMPTY;
+
 public class ConsoleGame {
     private Board board;
     private boolean isBlackTurn;
@@ -19,26 +21,27 @@ public class ConsoleGame {
         while(true) {
             printBoard();
             if(isBlackTurn) {
-                System.out.println("Black's turn");
+                System.out.println("Черные ходят");
             } else {
-                System.out.println("White's turn");
+                System.out.println("Белые ходят");
             }
-            System.out.println("Enter coordinates of checker you want to move:");
+            System.out.println("Введите координаты шашки, которой хотите ходить (сначала строка, потом колонка):");
             int fromRow = scanner.nextInt();
             int fromCol = scanner.nextInt();
-            System.out.println("Enter coordinates of where you want to move the checker:");
+            System.out.println("Координаты куда делаем ход (сначала строка, потом колонка):");
             int toRow = scanner.nextInt();
             int toCol = scanner.nextInt();
             boolean capture = Math.abs(fromRow - toRow) == 2 && Math.abs(fromCol - toCol) == 2;
             if(board.canMove(fromRow, fromCol, toRow, toCol, capture)) {
                 board.moveChecker(fromRow, fromCol, toRow, toCol);
                 if(capture && board.hasCaptureMoves(isBlackTurn)) {
-                    System.out.println("You can capture again!");
+                    System.out.println("Вы должны бить!");
                 } else {
+                    System.out.println("Блэк тёрн");
                     isBlackTurn = !isBlackTurn;
                 }
             } else {
-                System.out.println("Invalid move. Try again.");
+                System.out.println("Недопустимый ход!");
             }
             if(isGameOver()) {
                 printBoard();
@@ -49,22 +52,24 @@ public class ConsoleGame {
     }
 
     private void printBoard() {
-        System.out.print("  ");
+        System.out.print("   ");
         for(int col = 0; col < 8; col++) {
-            System.out.print(col + " ");
+            System.out.print(col + "  ");
         }
         System.out.println();
         for(int row = 0; row < 8; row++) {
             System.out.print(row + " ");
             for(int col = 0; col < 8; col++) {
-                Checker checker = board.getChecker(row, col);
-                if(checker != null) {
-                    System.out.print(checker.getPicture() + " ");
-                } else if((row + col) % 2 == 0) {
+//                Checker checker = board.getChecker(row, col);
+                 if((row + col) % 2 == 0 && row > 4) {
                     System.out.print(Board.WHITE + " ");
-                } else {
-                    System.out.print(Board.IS_EMPTY + " ");
-                }
+                } else if((row + col) % 2 == 0 && row < 3) {
+                    System.out.print(Board.BLACK + " ");
+                } else if((row + col) % 2 == 0 && (row == 3 || row == 4)) {
+                     System.out.print(EMPTY + " ");
+                 } else {
+                     System.out.print(Board.WHITE_SQUARE + " ");
+                 }
             }
             System.out.println();
         }

@@ -46,4 +46,15 @@ public class Checker {
     public void setPicture(String picture) {
         this.picture = picture;
     }
+
+    @Override
+    public String toString() {
+        return "Checker{" +
+                "row=" + row +
+                ", col=" + col +
+                ", king=" + king +
+                ", black=" + black +
+                ", picture='" + picture + '\'' +
+                '}';
+    }
 }
