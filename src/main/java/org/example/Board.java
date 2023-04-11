@@ -29,13 +29,55 @@ public class Board {
             }
         }
 
+        public boolean canHit(boolean blackTurn) {
+            for (int row = 0; row < board.length; row++) {
+                for (int col = 0; col < board.length; col++) {
+                    Checker checker = board[row][col];
+
+
+                    if (checker.isBlack() == blackTurn) {
+                        for (int a = -1; a < 2; a++) {
+                            if (((checker.getRow() + a) > 0 && (checker.getRow() + a) < 7)
+                                    && (checker.getCol() + a) > 0 && (checker.getCol() + a) < 7) {
+                                Checker underFire = board[(checker.getRow() + a)][checker.getCol() + a];
+
+                                if (!underFire.isBlack() == checker.isBlack()
+                                        && !underFire.getPicture().equals(EMPTY)
+                                        && !underFire.getPicture().equals(WHITE_SQUARE)) {
+
+                                    System.out.println(underFire.getRow() + " " + underFire.getCol()+ "*/*/*/*/*/**/*/*/under*/*/**/*/");
+                                    int rowDiff = underFire.getRow() - checker.getRow();
+                                    int colDiff = underFire.getCol() - checker.getCol();
+
+                                    if (underFire.getRow() + rowDiff >= 0 && underFire.getRow() + rowDiff < 8
+                                            && underFire.getCol() + colDiff >= 0 && underFire.getCol() + colDiff < 8) {
+
+                                        Checker possible = board[underFire.getRow() + rowDiff][underFire.getCol() + colDiff];
+
+                                        if (possible.getPicture().equals(EMPTY)) {
+                                            System.out.println(possible.getRow() + " <- row " + possible.getCol());
+                                            System.out.println("Вам не обходимо бить!");
+                                            return false;
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+
+        }
+
     //Проверка возможности хода
     public boolean canMove(int fromRow, int fromCol, int toRow, int toCol, boolean capture) {
         Checker checker = board[fromRow][fromCol];
 
         System.out.println(checker.toString() + " from " + board[toRow][toCol].toString() + " to ");
         if (board[toRow][toCol].getPicture().equals(EMPTY)) {
-            System.out.println("зашел в иф");
+
             if (capture) {
                 System.out.println("капча");
                 int rowDiff = toRow - fromRow;
@@ -43,7 +85,7 @@ public class Board {
                 int midRow = fromRow + rowDiff / 2;
                 int midCol = fromCol + colDiff / 2;
                 Checker midChecker = board[midRow][midCol];
-                if (midChecker.getPicture().equals(EMPTY) || midChecker.isBlack() == checker.isBlack()) {
+                if (midChecker.getPicture().equals(WHITE_SQUARE) || midChecker.getPicture().equals(EMPTY) || midChecker.isBlack() == checker.isBlack()) {
                     System.out.println(" if (midChecker.getPicture().equals(IS_EMPTY) ||");
                     return false;
                 } else {
@@ -68,9 +110,10 @@ public class Board {
 
     //Перемещение шашки на указанные координаты
     public void moveChecker(int fromRow, int fromCol, int toRow, int toCol) {
-        System.out.println("Зфшел в мувчекер");
+
         Checker checker = board[fromRow][fromCol];
         Checker emptyCell = board[toRow][toCol];
+
         checker.move(toRow, toCol);
         emptyCell.move(fromRow, fromCol);
 
@@ -81,6 +124,8 @@ public class Board {
             checker.setPicture(KING_BLACK);
             checker.makeKing();
         }
+        board[toRow][toCol] = checker;
+        board[fromRow][fromCol] = emptyCell;
     }
 
     //Проверка наличия обязательных ходов
@@ -88,11 +133,11 @@ public class Board {
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board.length; col++) {
                 System.out.println("проверка "+col + " " + row);
-                if ((row <= 6 && col <= 6) && canMove(row, col, row + 2, col + 2, true)) {
+                if ((row < 6 && col < 6) && canMove(row, col, row + 2, col + 2, true)) {
                     return true;
-                } else if ((row <= 6 && col >= 2) && canMove(row, col, row + 2, col - 2, true)) {
+                } else if ((row < 6 && col >= 2) && canMove(row, col, row + 2, col - 2, true)) {
                     return true;
-                } else if ((row >= 2 && col <= 6) && canMove(row, col, row - 2, col + 2, true)) {
+                } else if ((row >= 2 && col < 6) && canMove(row, col, row - 2, col + 2, true)) {
                     return true;
                 } else if ((row >= 2 && col >= 2) && canMove(row, col, row - 2, col - 2, true)) {
                     return true;

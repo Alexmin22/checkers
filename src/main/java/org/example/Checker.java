@@ -14,6 +14,14 @@ public class Checker {
         this.picture = picture;
     }
 
+    public Checker(int row, int col, boolean king, boolean black, String picture) {
+        this.row = row;
+        this.col = col;
+        this.king = king;
+        this.black = black;
+        this.picture = picture;
+    }
+
     public void move(int row, int col) {
         this.row = row;
         this.col = col;

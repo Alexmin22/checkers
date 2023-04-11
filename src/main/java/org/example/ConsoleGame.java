@@ -2,7 +2,6 @@ package org.example;
 
 import java.util.Scanner;
 
-import static org.example.Board.EMPTY;
 
 public class ConsoleGame {
     private Board board;
@@ -32,11 +31,15 @@ public class ConsoleGame {
             int toRow = scanner.nextInt();
             int toCol = scanner.nextInt();
             boolean capture = Math.abs(fromRow - toRow) == 2 && Math.abs(fromCol - toCol) == 2;
-            if(board.canMove(fromRow, fromCol, toRow, toCol, capture)) {
+            boolean canHit = true;
+            if (!capture) {
+                canHit = board.canHit(isBlackTurn);
+            }
+            if(board.canMove(fromRow, fromCol, toRow, toCol, capture) && canHit) {
                 System.out.println("Проверка кэн мув");
                 board.moveChecker(fromRow, fromCol, toRow, toCol);
                 if(capture && board.hasCaptureMoves(isBlackTurn)) {
-                    System.out.println("Вы должны бить!");
+                    System.out.println("Есть возможность бить, доп. ход");
                 } else {
                     System.out.println("Блэк тёрн");
                     isBlackTurn = !isBlackTurn;
@@ -53,24 +56,14 @@ public class ConsoleGame {
     }
 
     private void printBoard() {
-        System.out.print("   ");
-        for(int col = 0; col < 8; col++) {
-            System.out.print(col + "  ");
-        }
-        System.out.println();
+        System.out.print("   0  1  2  3   4  5  6   7\n");
+
         for(int row = 0; row < 8; row++) {
             System.out.print(row + " ");
+
             for(int col = 0; col < 8; col++) {
-//                Checker checker = board.getChecker(row, col);
-                 if((row + col) % 2 == 0 && row > 4) {
-                    System.out.print(Board.WHITE + " ");
-                } else if((row + col) % 2 == 0 && row < 3) {
-                    System.out.print(Board.BLACK + " ");
-                } else if((row + col) % 2 == 0 && (row == 3 || row == 4)) {
-                     System.out.print(EMPTY + " ");
-                 } else {
-                     System.out.print(Board.WHITE_SQUARE + " ");
-                 }
+                Checker checker = board.getChecker(row, col);
+                System.out.print(checker.getPicture() + " ");
             }
             System.out.println();
         }
@@ -82,19 +75,19 @@ public class ConsoleGame {
         for(int row = 0; row < 8; row++) {
             for(int col = 0; col < 8; col++) {
                 Checker checker = board.getChecker(row, col);
-                if(checker != null && checker.isBlack()) {
-                    if(board.canMove(row, col, row + 1, col + 1, false) ||
-                            board.canMove(row, col, row + 1, col - 1, false) ||
-                            board.canMove(row, col, row + 2, col + 2, true) ||
-                            board.canMove(row, col, row + 2, col - 2, true)) {
+                if((!checker.getPicture().equals("⬛️") || !checker.getPicture().equals("⬜️")) && checker.isBlack()) {
+                    if(board.canMove(row, col, Math.min((row + 1), 7), Math.min((col + 1), 7), false) ||
+                            board.canMove(row, col, Math.min((row + 1), 7), (col - 1) < 0 ? 1 : (col - 1), false) ||
+                            board.canMove(row, col, Math.min((row + 2), 7), Math.min((col + 2), 7), true) ||
+                            board.canMove(row, col, Math.min((row + 2), 7), Math.max((col - 2), 0), true)) {
                         blackHasMoves = true;
                     }
                 }
-                if(checker != null && !checker.isBlack()) {
-                    if(board.canMove(row, col, row + 1, col + 1, false) ||
-                            board.canMove(row, col, row + 1, col - 1, false) ||
-                            board.canMove(row, col, row - 2, col + 2, true) ||
-                            board.canMove(row, col, row - 2, col - 2, true)) {
+                if((!checker.getPicture().equals("⬛️") || !checker.getPicture().equals("⬜️")) && !checker.isBlack()) {
+                    if(board.canMove(row, col, Math.max((row - 1), 0), Math.min((col + 1), 7), false) ||
+                            board.canMove(row, col, Math.min((row + 1), 7), (col - 1) < 0 ? 1 : (col - 1), false) ||
+                            board.canMove(row, col, Math.min((row + 2), 7), Math.min((col + 2), 7), true) ||
+                            board.canMove(row, col, Math.max((row - 2), 0), Math.max((col - 2), 0), true)) {
                         whiteHasMoves = true;
                     }
                 }
