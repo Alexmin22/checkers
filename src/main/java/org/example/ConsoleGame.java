@@ -33,6 +33,7 @@ public class ConsoleGame {
             int toCol = scanner.nextInt();
             boolean capture = Math.abs(fromRow - toRow) == 2 && Math.abs(fromCol - toCol) == 2;
             if(board.canMove(fromRow, fromCol, toRow, toCol, capture)) {
+                System.out.println("Проверка кэн мув");
                 board.moveChecker(fromRow, fromCol, toRow, toCol);
                 if(capture && board.hasCaptureMoves(isBlackTurn)) {
                     System.out.println("Вы должны бить!");

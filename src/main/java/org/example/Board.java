@@ -62,7 +62,7 @@ public class Board {
                 }
             }
         }
-        System.out.println("конец");
+        System.out.println("конец метода кен мув");
         return false;
     }
 
@@ -70,9 +70,10 @@ public class Board {
     public void moveChecker(int fromRow, int fromCol, int toRow, int toCol) {
         System.out.println("Зфшел в мувчекер");
         Checker checker = board[fromRow][fromCol];
+        Checker emptyCell = board[toRow][toCol];
         checker.move(toRow, toCol);
-        board[toRow][toCol] = checker;
-        board[fromCol][fromRow].setPicture(EMPTY);
+        emptyCell.move(fromRow, fromCol);
+
         if (toRow == 0 && !checker.isKing() && !checker.isBlack()) {
             checker.setPicture(KING_WHITE);
             checker.makeKing();
@@ -85,14 +86,17 @@ public class Board {
     //Проверка наличия обязательных ходов
     public boolean hasCaptureMoves(boolean black) {
         for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col < board[row].length; col++) {
-                Checker checker = board[row][col];
-                    if (canMove(row, col, row + 2, col + 2, true)
-                            || canMove(row, col, row + 2, col - 2, true)
-                            || canMove(row, col, row - 2, col + 2, true)
-                            || canMove(row, col, row - 2, col - 2, true)) {
-                        return true;
-                    }
+            for (int col = 0; col < board.length; col++) {
+                System.out.println("проверка "+col + " " + row);
+                if ((row <= 6 && col <= 6) && canMove(row, col, row + 2, col + 2, true)) {
+                    return true;
+                } else if ((row <= 6 && col >= 2) && canMove(row, col, row + 2, col - 2, true)) {
+                    return true;
+                } else if ((row >= 2 && col <= 6) && canMove(row, col, row - 2, col + 2, true)) {
+                    return true;
+                } else if ((row >= 2 && col >= 2) && canMove(row, col, row - 2, col - 2, true)) {
+                    return true;
+                }
             }
         }
         return false;
