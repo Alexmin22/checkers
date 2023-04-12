@@ -32,13 +32,17 @@ public class ConsoleGame {
             int toCol = scanner.nextInt();
             boolean capture = Math.abs(fromRow - toRow) == 2 && Math.abs(fromCol - toCol) == 2;
             boolean canHit = true;
+            if (fromRow == toRow || fromCol == toCol || fromCol < 0 || fromCol > 7 ||fromRow < 0 || fromRow > 7
+                    || toRow < 0 || toCol > 7 || toRow > 7 || toCol < 0) {
+                continue;
+            }
             if (!capture) {
                 canHit = board.canHit(isBlackTurn);
             }
-            if(board.canMove(fromRow, fromCol, toRow, toCol, capture) && canHit) {
+            if(board.canMove(fromRow, fromCol, toRow, toCol, capture, isBlackTurn) && canHit) {
                 System.out.println("Проверка кэн мув");
-                board.moveChecker(fromRow, fromCol, toRow, toCol);
-                if(capture && board.hasCaptureMoves(isBlackTurn)) {
+                board.moveChecker(fromRow, fromCol, toRow, toCol, capture);
+                if(capture && !board.canHit(isBlackTurn)) {
                     System.out.println("Есть возможность бить, доп. ход");
                 } else {
                     System.out.println("Блэк тёрн");
@@ -75,19 +79,19 @@ public class ConsoleGame {
         for(int row = 0; row < 8; row++) {
             for(int col = 0; col < 8; col++) {
                 Checker checker = board.getChecker(row, col);
-                if((!checker.getPicture().equals("⬛️") || !checker.getPicture().equals("⬜️")) && checker.isBlack()) {
-                    if(board.canMove(row, col, Math.min((row + 1), 7), Math.min((col + 1), 7), false) ||
-                            board.canMove(row, col, Math.min((row + 1), 7), (col - 1) < 0 ? 1 : (col - 1), false) ||
-                            board.canMove(row, col, Math.min((row + 2), 7), Math.min((col + 2), 7), true) ||
-                            board.canMove(row, col, Math.min((row + 2), 7), Math.max((col - 2), 0), true)) {
+                if(checker.getPicture().equals("⚫️")) {
+                    if(board.canMove(row, col, Math.min((row + 1), 7), Math.min((col + 1), 7), false, true) ||
+                            board.canMove(row, col, Math.min((row + 1), 7), (col - 1) < 0 ? 1 : (col - 1), false, true) ||
+                            board.canMove(row, col, Math.min((row + 2), 7), Math.min((col + 2), 7), true, true) ||
+                            board.canMove(row, col, Math.min((row + 2), 7), Math.max((col - 2), 0), true, true)) {
                         blackHasMoves = true;
                     }
                 }
-                if((!checker.getPicture().equals("⬛️") || !checker.getPicture().equals("⬜️")) && !checker.isBlack()) {
-                    if(board.canMove(row, col, Math.max((row - 1), 0), Math.min((col + 1), 7), false) ||
-                            board.canMove(row, col, Math.min((row + 1), 7), (col - 1) < 0 ? 1 : (col - 1), false) ||
-                            board.canMove(row, col, Math.min((row + 2), 7), Math.min((col + 2), 7), true) ||
-                            board.canMove(row, col, Math.max((row - 2), 0), Math.max((col - 2), 0), true)) {
+                if(checker.getPicture().equals("⚪️")) {
+                    if(board.canMove(row, col, Math.max((row - 1), 0), Math.min((col + 1), 7), false, false) ||
+                            board.canMove(row, col, Math.min((row + 1), 7), (col - 1) < 0 ? 1 : (col - 1), false, false) ||
+                            board.canMove(row, col, Math.min((row + 2), 7), Math.min((col + 2), 7), true, false) ||
+                            board.canMove(row, col, Math.max((row - 2), 0), Math.max((col - 2), 0), true, false)) {
                         whiteHasMoves = true;
                     }
                 }

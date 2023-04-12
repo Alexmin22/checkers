@@ -6,8 +6,8 @@ public class Board {
     public static final String WHITE ="⚪️";
     public static final String WHITE_SQUARE ="⬜️";
     public static final String EMPTY ="⬛️";
-    public static final String KING_BLACK ="  ";
-    public static final String KING_WHITE ="  ";
+    public static final String KING_BLACK ="♔";
+    public static final String KING_WHITE ="♛";
     private Checker[][] board;
 
     public Board() {
@@ -34,15 +34,44 @@ public class Board {
                 for (int col = 0; col < board.length; col++) {
                     Checker checker = board[row][col];
 
+                    if (checker.isBlack() == blackTurn && !checker.getPicture().equals(EMPTY)
+                    && !checker.getPicture().equals(WHITE_SQUARE)) {
 
-                    if (checker.isBlack() == blackTurn) {
-                        for (int a = -1; a < 2; a++) {
-                            if (((checker.getRow() + a) > 0 && (checker.getRow() + a) < 7)
-                                    && (checker.getCol() + a) > 0 && (checker.getCol() + a) < 7) {
-                                Checker underFire = board[(checker.getRow() + a)][checker.getCol() + a];
+                        int[][] delta = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+                        for (int[] a : delta) {
 
-                                if (!underFire.isBlack() == checker.isBlack()
-                                        && !underFire.getPicture().equals(EMPTY)
+                            if (checker.isKing()) {
+                                int r = row + a[0];
+                                int c = col + a[1];
+
+                                while (r > 0 && r < 7 && c > 0 && c < 7) {
+                                    if (board[r][c] != null) {
+
+                                        //нашел своего выхожу из цикла
+                                        if (board[r][c].getPicture().equals(checker.getPicture())) {
+                                            break;
+                                            //нашел соперника, ищу пустую клетку за ним
+                                        } else {
+                                            int jumpRow = r + a[0];
+                                            int jumpCol = c + a[1];
+                                            //нашел пустую клетку
+                                            if (jumpRow >= 0 && jumpRow < 8 && jumpCol >= 0 && jumpCol < 8
+                                                    && board[jumpRow][jumpCol].getPicture().equals(EMPTY)) {
+                                                System.out.println("Вам не обходимо бить!");
+                                                return false;
+                                            }
+                                            //не нашел пустой клетки за соперником
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (((checker.getRow() + a[0]) > 0 && (checker.getRow() + a[0]) < 7)
+                                    && (checker.getCol() + a[1]) > 0 && (checker.getCol() + a[1]) < 7 && !checker.isKing()) {
+                                Checker underFire = board[(checker.getRow() + a[0])][checker.getCol() + a[1]];
+
+                                if (!underFire.isBlack() == checker.isBlack() && !underFire.getPicture().equals(EMPTY)
                                         && !underFire.getPicture().equals(WHITE_SQUARE)) {
 
                                     System.out.println(underFire.getRow() + " " + underFire.getCol()+ "*/*/*/*/*/**/*/*/under*/*/**/*/");
@@ -72,11 +101,11 @@ public class Board {
         }
 
     //Проверка возможности хода
-    public boolean canMove(int fromRow, int fromCol, int toRow, int toCol, boolean capture) {
+    public boolean canMove(int fromRow, int fromCol, int toRow, int toCol, boolean capture, boolean isBlackTurn) {
         Checker checker = board[fromRow][fromCol];
 
         System.out.println(checker.toString() + " from " + board[toRow][toCol].toString() + " to ");
-        if (board[toRow][toCol].getPicture().equals(EMPTY)) {
+        if (board[toRow][toCol].getPicture().equals(EMPTY) && checker.isBlack() == isBlackTurn) {
 
             if (capture) {
                 System.out.println("капча");
@@ -109,7 +138,7 @@ public class Board {
     }
 
     //Перемещение шашки на указанные координаты
-    public void moveChecker(int fromRow, int fromCol, int toRow, int toCol) {
+    public void moveChecker(int fromRow, int fromCol, int toRow, int toCol, boolean capture) {
 
         Checker checker = board[fromRow][fromCol];
         Checker emptyCell = board[toRow][toCol];
@@ -126,25 +155,14 @@ public class Board {
         }
         board[toRow][toCol] = checker;
         board[fromRow][fromCol] = emptyCell;
-    }
+        if (capture) {
+            int rowDiff = toRow - fromRow;
+            int colDiff = toCol - fromCol;
+            int midRow = fromRow + rowDiff / 2;
+            int midCol = fromCol + colDiff / 2;
 
-    //Проверка наличия обязательных ходов
-    public boolean hasCaptureMoves(boolean black) {
-        for (int row = 0; row < board.length; row++) {
-            for (int col = 0; col < board.length; col++) {
-                System.out.println("проверка "+col + " " + row);
-                if ((row < 6 && col < 6) && canMove(row, col, row + 2, col + 2, true)) {
-                    return true;
-                } else if ((row < 6 && col >= 2) && canMove(row, col, row + 2, col - 2, true)) {
-                    return true;
-                } else if ((row >= 2 && col < 6) && canMove(row, col, row - 2, col + 2, true)) {
-                    return true;
-                } else if ((row >= 2 && col >= 2) && canMove(row, col, row - 2, col - 2, true)) {
-                    return true;
-                }
-            }
+            board[midRow][midCol].setPicture(EMPTY);
         }
-        return false;
     }
 
     public Checker getChecker(int row, int col) {
