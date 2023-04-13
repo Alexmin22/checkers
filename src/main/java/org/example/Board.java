@@ -2,12 +2,12 @@ package org.example;
 
 public class Board {
 
-    public static final String BLACK ="⚫️";
-    public static final String WHITE ="⚪️";
-    public static final String WHITE_SQUARE ="⬜️";
-    public static final String EMPTY ="⬛️";
-    public static final String KING_BLACK ="♔";
-    public static final String KING_WHITE ="♛";
+    public static final String BLACK = "⚫️";
+    public static final String WHITE = "⚪️";
+    public static final String WHITE_SQUARE = "⬜️";
+    public static final String EMPTY = "⬛️";
+    public static final String KING_BLACK = "♔";
+    public static final String KING_WHITE = "♛";
     private Checker[][] board;
 
     public Board() {
@@ -21,7 +21,7 @@ public class Board {
                     } else if (row > 4) {
                         board[row][col] = new Checker(row, col, false,
                                 (row + col) % 2 == 0 ? WHITE : WHITE_SQUARE);
-                    } else if (row == 3 || row == 4) {
+                    } else {
                         board[row][col] = new Checker(row, col, false,
                                 (row + col) % 2 == 0 ? EMPTY : WHITE_SQUARE);
                     }
@@ -168,6 +168,7 @@ public class Board {
     public Checker getChecker(int row, int col) {
         return board[row][col];
     }
+
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
