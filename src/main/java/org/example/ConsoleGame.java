@@ -18,18 +18,22 @@ public class ConsoleGame {
         System.out.println("Welcome to Checkers!");
 
         while(true) {
+
             printBoard();
+
             if(isBlackTurn) {
                 System.out.println("Черные ходят");
             } else {
                 System.out.println("Белые ходят");
             }
+
             System.out.println("Введите координаты шашки, которой хотите ходить (сначала строка, потом колонка):");
             int fromRow = scanner.nextInt();
             int fromCol = scanner.nextInt();
             System.out.println("Координаты куда делаем ход (сначала строка, потом колонка):");
             int toRow = scanner.nextInt();
             int toCol = scanner.nextInt();
+
             boolean capture = Math.abs(fromRow - toRow) == 2 && Math.abs(fromCol - toCol) == 2;
             boolean canHit = true;
             if (fromRow == toRow || fromCol == toCol || fromCol < 0 || fromCol > 7 ||fromRow < 0 || fromRow > 7
@@ -40,12 +44,10 @@ public class ConsoleGame {
                 canHit = board.canHit(isBlackTurn);
             }
             if(board.canMove(fromRow, fromCol, toRow, toCol, capture, isBlackTurn) && canHit) {
-                System.out.println("Проверка кэн мув");
                 board.moveChecker(fromRow, fromCol, toRow, toCol, capture);
                 if(capture && !board.canHit(isBlackTurn)) {
                     System.out.println("Есть возможность бить, доп. ход");
                 } else {
-                    System.out.println("Блэк тёрн");
                     isBlackTurn = !isBlackTurn;
                 }
             } else {

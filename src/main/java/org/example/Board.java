@@ -11,84 +11,82 @@ public class Board {
     private Checker[][] board;
 
     public Board() {
-            //Инициализация доски
-            board = new Checker[8][8];
-            for (int row = 0; row < board.length; row++) {
-                for (int col = 0; col < board.length; col++) {
-                    if (row < 3) {
-                        board[row][col] = new Checker(row, col, true,
-                                (row + col) % 2 == 0 ? BLACK : WHITE_SQUARE);
-                    } else if (row > 4) {
-                        board[row][col] = new Checker(row, col, false,
-                                (row + col) % 2 == 0 ? WHITE : WHITE_SQUARE);
-                    } else {
-                        board[row][col] = new Checker(row, col, false,
-                                (row + col) % 2 == 0 ? EMPTY : WHITE_SQUARE);
-                    }
+        //Инициализация доски
+        board = new Checker[8][8];
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board.length; col++) {
+                if (row < 3) {
+                    board[row][col] = new Checker(row, col, true,
+                            (row + col) % 2 == 0 ? BLACK : WHITE_SQUARE);
+                } else if (row > 4) {
+                    board[row][col] = new Checker(row, col, false,
+                            (row + col) % 2 == 0 ? WHITE : WHITE_SQUARE);
+                } else {
+                    board[row][col] = new Checker(row, col, false,
+                            (row + col) % 2 == 0 ? EMPTY : WHITE_SQUARE);
+                }
+
+                //сразу помечаю пустые клетки
+                if (board[row][col].getPicture().equals(EMPTY)
+                        || board[row][col].getPicture().equals(WHITE_SQUARE)) {
+                    board[row][col].makeEmptyCell();
                 }
             }
         }
+    }
 
-        public boolean canHit(boolean blackTurn) {
-            for (int row = 0; row < board.length; row++) {
-                for (int col = 0; col < board.length; col++) {
-                    Checker checker = board[row][col];
+    //проверка перед ходом на возможность бить шашку соперника
+    public boolean canHit(boolean blackTurn) {
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board.length; col++) {
+                Checker checker = board[row][col];
 
-                    if (checker.isBlack() == blackTurn && !checker.getPicture().equals(EMPTY)
-                    && !checker.getPicture().equals(WHITE_SQUARE)) {
+                //проверяю по цвету кто сейчас ходит(если ходит черные, то смотрим есть ли белая шашка под боем)
+                if (checker.isBlack() == blackTurn && !checker.isEmpty()) {
 
-                        int[][] delta = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
-                        for (int[] a : delta) {
+                    int[][] delta = {{-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
+                    for (int[] a : delta) {
+                        int r = row + a[0];
+                        int c = col + a[1];
 
-                            if (checker.isKing()) {
-                                int r = row + a[0];
-                                int c = col + a[1];
+                        //особая логика для дамки
+                        if (checker.isKing()) {
 
-                                while (r > 0 && r < 7 && c > 0 && c < 7) {
-                                    if (board[r][c] != null) {
-
-                                        //нашел своего выхожу из цикла
-                                        if (board[r][c].getPicture().equals(checker.getPicture())) {
-                                            break;
-                                            //нашел соперника, ищу пустую клетку за ним
-                                        } else {
-                                            int jumpRow = r + a[0];
-                                            int jumpCol = c + a[1];
-                                            //нашел пустую клетку
-                                            if (jumpRow >= 0 && jumpRow < 8 && jumpCol >= 0 && jumpCol < 8
-                                                    && board[jumpRow][jumpCol].getPicture().equals(EMPTY)) {
-                                                System.out.println("Вам не обходимо бить!");
-                                                return false;
-                                            }
-                                            //не нашел пустой клетки за соперником
-                                            break;
-                                        }
+                            while (r > 0 && r < 7 && c > 0 && c < 7) {
+                                //нашел соперника, ищу пустую клетку за ним
+                                if (!board[r][c].getPicture().equals(checker.getPicture())
+                                        && !board[r][c].isEmpty()) {
+                                    int jumpRow = r + a[0];
+                                    int jumpCol = c + a[1];
+                                    //нашел пустую клетку
+                                    if (jumpRow >= 0 && jumpRow < 8 && jumpCol >= 0 && jumpCol < 8
+                                            && board[jumpRow][jumpCol].getPicture().equals(EMPTY)) {
+                                        System.out.println("Вам необходимо бить!");
+                                        return false;
                                     }
+                                    //не нашел пустой клетки за соперником
+                                    break;
                                 }
                             }
+                        }
 
-                            if (((checker.getRow() + a[0]) > 0 && (checker.getRow() + a[0]) < 7)
-                                    && (checker.getCol() + a[1]) > 0 && (checker.getCol() + a[1]) < 7 && !checker.isKing()) {
-                                Checker underFire = board[(checker.getRow() + a[0])][checker.getCol() + a[1]];
+                        //простые шашки
+                        if (r > 0 && r < 7 && c > 0 && c < 7) {
 
-                                if (!underFire.isBlack() == checker.isBlack() && !underFire.getPicture().equals(EMPTY)
-                                        && !underFire.getPicture().equals(WHITE_SQUARE)) {
+                            if (!board[r][c].isBlack() == checker.isBlack() && !board[r][c].isEmpty()) {
 
-                                    System.out.println(underFire.getRow() + " " + underFire.getCol()+ "*/*/*/*/*/**/*/*/under*/*/**/*/");
-                                    int rowDiff = underFire.getRow() - checker.getRow();
-                                    int colDiff = underFire.getCol() - checker.getCol();
-
-                                    if (underFire.getRow() + rowDiff >= 0 && underFire.getRow() + rowDiff < 8
-                                            && underFire.getCol() + colDiff >= 0 && underFire.getCol() + colDiff < 8) {
-
-                                        Checker possible = board[underFire.getRow() + rowDiff][underFire.getCol() + colDiff];
-
-                                        if (possible.getPicture().equals(EMPTY)) {
-                                            System.out.println(possible.getRow() + " <- row " + possible.getCol());
-                                            System.out.println("Вам не обходимо бить!");
-                                            return false;
-
-                                        }
+                                System.out.println(board[r][c] + " нашел соперника, ищу пустую клетку за ним");
+                                //нашел соперника, ищу пустую клетку за ним
+                                if (!board[r][c].getPicture().equals(checker.getPicture())
+                                        && !board[r][c].isEmpty()) {
+                                    int jumpRow = r + a[0];
+                                    int jumpCol = c + a[1];
+                                    //нашел пустую клетку
+                                    if (jumpRow >= 0 && jumpRow < 8 && jumpCol >= 0 && jumpCol < 8
+                                            && board[jumpRow][jumpCol].getPicture().equals(EMPTY)) {
+                                        System.out.println(board[jumpRow][jumpCol] + " нашел пустую клетку");
+                                        System.out.println("Вам необходимо бить!");
+                                        return false;
                                     }
                                 }
                             }
@@ -96,9 +94,9 @@ public class Board {
                     }
                 }
             }
-            return true;
-
         }
+        return true;
+    }
 
     //Проверка возможности хода
     public boolean canMove(int fromRow, int fromCol, int toRow, int toCol, boolean capture, boolean isBlackTurn) {
@@ -114,7 +112,7 @@ public class Board {
                 int midRow = fromRow + rowDiff / 2;
                 int midCol = fromCol + colDiff / 2;
                 Checker midChecker = board[midRow][midCol];
-                if (midChecker.getPicture().equals(WHITE_SQUARE) || midChecker.getPicture().equals(EMPTY) || midChecker.isBlack() == checker.isBlack()) {
+                if (midChecker.isEmpty() || midChecker.isBlack() == checker.isBlack()) {
                     System.out.println(" if (midChecker.getPicture().equals(IS_EMPTY) ||");
                     return false;
                 } else {
@@ -162,6 +160,7 @@ public class Board {
             int midCol = fromCol + colDiff / 2;
 
             board[midRow][midCol].setPicture(EMPTY);
+            board[midRow][midCol].makeEmptyCell();
         }
     }
 
@@ -177,7 +176,7 @@ public class Board {
         for (int row = 0; row < board.length; row++) {
             result.append(row).append(" "); // выводим номер строки
             for (int col = 0; col < board.length; col++) {
-                    result.append(board[row][col].getPicture()); // клетка с шашкой
+                result.append(board[row][col].getPicture()); // клетка с шашкой
                 result.append(" ");
             }
 
@@ -186,4 +185,4 @@ public class Board {
         result.append("  0 1 2 3 4 5 6 7");
         return result.toString();
     }
-        }
+}

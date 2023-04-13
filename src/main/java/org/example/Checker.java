@@ -5,19 +5,12 @@ public class Checker {
     private int col;
     private boolean king;
     private boolean black;
+    private boolean emptyCell;
     private String picture;
 
     public Checker(int row, int col, boolean black, String picture) {
         this.row = row;
         this.col = col;
-        this.black = black;
-        this.picture = picture;
-    }
-
-    public Checker(int row, int col, boolean king, boolean black, String picture) {
-        this.row = row;
-        this.col = col;
-        this.king = king;
         this.black = black;
         this.picture = picture;
     }
@@ -30,6 +23,8 @@ public class Checker {
     public void makeKing() {
         this.king = true;
     }
+
+    public void makeEmptyCell() {this.emptyCell = true;}
 
     public int getRow() {
         return row;
@@ -46,6 +41,8 @@ public class Checker {
     public boolean isBlack() {
         return black;
     }
+
+    public boolean isEmpty() {return emptyCell;}
 
     public String getPicture() {
         return picture;
